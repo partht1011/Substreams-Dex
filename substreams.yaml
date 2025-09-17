@@ -10,8 +10,7 @@ binaries:
 
 protobuf:
   files:
-    - proto/common.proto
-    - proto/dex_trade_event.proto
+    - proto/dex_trade_event.proto # imports common.proto internally
   importPaths:
     - proto
 
@@ -30,5 +29,4 @@ modules:
       - source: sf.ethereum.type.v2.Block
     output:
       type: proto:io.blockchain.v1.dex.trade.TradeEvents
-
 # Optional: add metadata, authors, repository, build config as needed.
