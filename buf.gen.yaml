@@ -1,7 +1,7 @@
 version: v1
 plugins:
-  # Use a stable plugin to avoid the prost panic. Output to a temp folder not used by Cargo.
-  - plugin: buf.build/protocolbuffers/go
-    out: target/buf-go
+  - plugin: buf.build/protocolbuffers/descriptor_set
+    out: target/buf-descriptor
     opt:
-      - paths=source_relative
+      - include_imports=true
+      - include_source_info=true
