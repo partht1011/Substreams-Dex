@@ -1,31 +1,34 @@
-name: io.blockchain.v1.dex.trade
-version: 0.1.0
+specVersion: v0.1.0
+package:
+  name: io.blockchain.v1.dex.trade
+  version: v0.1.0
 
+binaries:
+  default:
+    type: wasm/rust-v1
+    file: ./target/wasm32-unknown-unknown/release/substreams_dex_trades.wasm
 
-protos:
-files:
-- proto/common.proto
-- proto/dex_trade_event.proto
-
+protobuf:
+  files:
+    - proto/common.proto
+    - proto/dex_trade_event.proto
+  importPaths:
+    - proto
 
 modules:
-- name: map_sol_trades
-kind: map
-inputs:
-- source: sf.solana.type.v1.Block
-output:
-type: proto:io.blockchain.v1.dex.trade.TradeEvents
+  - name: map_sol_trades
+    kind: map
+    inputs:
+      - source: sf.solana.type.v1.Block
+    output:
+      type: proto:io.blockchain.v1.dex.trade.TradeEvents
 
-
-- name: map_bsc_uniswapv3_swaps
-kind: map
-params:
-- name: pool_address
-default: "0xd857e4a8fe599ed936157076674b2756d9df6fe8"
-inputs:
-- source: sf.ethereum.type.v2.Block
-output:
-type: proto:io.blockchain.v1.dex.trade.TradeEvents
-
+  - name: map_bsc_uniswapv3_swaps
+    kind: map
+    inputs:
+      - params: string
+      - source: sf.ethereum.type.v2.Block
+    output:
+      type: proto:io.blockchain.v1.dex.trade.TradeEvents
 
 # Optional: add metadata, authors, repository, build config as needed.

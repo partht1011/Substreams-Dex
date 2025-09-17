@@ -7,10 +7,11 @@ mod dapps;
 
 use crate::pb::io::blockchain::v1::dex::trade::{TradeEvents, TradeEvent, Trade};
 use crate::pb::io::chainstream::v1::common::{Block as CBlock, Transaction as CTransaction, Instruction as CInstruction, DApp, Chain};
+use substreams_solana::pb::sf::solana::r#type::v1 as solana;
 
 // Solana handler
 #[substreams::handlers::map]
-fn map_sol_trades(blk: substreams::pb::sf::solana::v1::Block) -> Result<TradeEvents, substreams::errors::Error> {
+fn map_sol_trades(blk: solana::Block) -> Result<TradeEvents, substreams::errors::Error> {
     let mut out = TradeEvents::default();
 
     if let Some(transactions) = blk.transactions.as_ref() {
@@ -49,14 +50,14 @@ fn map_sol_trades(blk: substreams::pb::sf::solana::v1::Block) -> Result<TradeEve
 
 // EVM/BSC handler
 #[substreams::handlers::map]
-fn map_bsc_uniswapv3_swaps(params: substreams::scalar::Params, blk: substreams_ethereum::pb::eth::v2::Block) -> Result<TradeEvents, substreams::errors::Error> {
+fn map_bsc_uniswapv3_swaps(params: String, blk: substreams_ethereum::pb::eth::v2::Block) -> Result<TradeEvents, substreams::errors::Error> {
     let mut out = TradeEvents::default();
 
     // read pool address param
-    let pool_addr = params.get("pool_address").unwrap_or(&"".to_string()).clone();
+    let pool_addr = params;
     let pool_addr_normalized = pool_addr.to_lowercase();
 
-    for log in blk.logs.iter() {
+    for log in blk.logs().iter() {
         let log_addr = format!("0x{}", hex::encode(&log.address));
         if log_addr.to_lowercase() != pool_addr_normalized { continue; }
 

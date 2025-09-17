@@ -12,7 +12,7 @@ crate-type = ["cdylib"]
 [dependencies]
 substreams = "^0.5"
 substreams-ethereum = "^0.5"
-substreams-solana = "^0.5"
+substreams-solana = "^0.14.0"
 bytes = "1"
 serde = { version = "1", features = ["derive"] }
 primitive-types = "0.10"

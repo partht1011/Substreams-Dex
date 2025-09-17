@@ -1,6 +1,7 @@
-use crate::pb::io::blockchain::v1::dex::trade::{TradeEvents, TradeEvent, Trade};
+use crate::pb::io::blockchain::v1::dex::trade::{TradeEvent, Trade};
 use crate::pb::io::chainstream::v1::common::{Block as CBlock, Transaction as CTransaction, Instruction as CInstruction, DApp, Chain};
 use substreams::errors::Error;
+use substreams_solana::pb::sf::solana::r#type::v1 as solana;
 
 pub const RAYDIUM_PROGRAM_ID: &str = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8";
 
@@ -8,10 +9,10 @@ pub const RAYDIUM_PROGRAM_ID: &str = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1M
 pub fn parse_trade_instruction(
     instruction_index: u32,
     program_id: &str,
-    instruction_data: &[u8],
+    _instruction_data: &[u8],
     accounts: &Vec<String>,
-    pre_token_balances: &Vec<crate::pb::sf::solana::v1::TokenBalance>,
-    post_token_balances: &Vec<crate::pb::sf::solana::v1::TokenBalance>,
+    pre_token_balances: &Vec<solana::TokenBalance>,
+    post_token_balances: &Vec<solana::TokenBalance>,
 ) -> Option<TradeEvent> {
     if program_id != RAYDIUM_PROGRAM_ID {
         return None;
