@@ -13,6 +13,9 @@ protobuf:
     - proto/dex_trade_event.proto # imports common.proto internally
   importPaths:
     - proto
+  excludePaths:
+    - google
+    - sf/substreams
 
 modules:
   - name: map_sol_trades

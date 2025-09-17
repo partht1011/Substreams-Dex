@@ -53,10 +53,10 @@ message BondingCurve {
 }
 
 message TradeEvent {
-  io.chainstream.v1.common.Instruction instruction = 1;
-  io.chainstream.v1.common.Block block = 2;
-  io.chainstream.v1.common.Transaction transaction = 3;
-  io.chainstream.v1.common.DApp d_app = 4;
+  .io.chainstream.v1.common.Instruction instruction = 1;
+  .io.chainstream.v1.common.Block block = 2;
+  .io.chainstream.v1.common.Transaction transaction = 3;
+  .io.chainstream.v1.common.DApp d_app = 4;
 
   Trade trade = 100;
   BondingCurve bonding_curve = 110;
