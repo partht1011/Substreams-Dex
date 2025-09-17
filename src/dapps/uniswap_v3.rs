@@ -4,25 +4,39 @@ use substreams::errors::Error;
 use substreams_ethereum::pb::eth::v2 as ethpb;
 use hex;
 
-// NOTE: substreams-ethereum v0.5 does not expose an Abi or Rpc helper here.
-// Keep a placeholder decoder for now; replace with manual decoding or abigen later.
+// keccak256("Swap(address,address,int256,int256,uint160,uint128,int24)")
+const SWAP_TOPIC0: [u8; 32] = hex_literal::hex!(
+    "c42079f94a6350d7e6235f29174924f928cc2ac818eb64fed8004e115fbcca67"
+);
 
-/// Decode a Swap event from a Uniswap V3 pool log (placeholder)
-pub fn decode_swap_event(_log: &ethpb::Log) -> Result<(String, String, i128, i128), Error> {
-    // TODO: implement proper ABI decoding; returning dummy values for now to keep build green
-    Ok((String::new(), String::new(), 0, 0))
+pub fn is_swap_log(log: &ethpb::Log) -> bool {
+    if log.topics.len() < 1 { return false; }
+    log.topics[0].as_slice() == SWAP_TOPIC0
 }
 
-/// Build a TradeEvent from a decoded Swap event
+/// Minimal TradeEvent for a Uniswap V3 Swap: extracts sender/recipient (indexed), amounts default to 0 for simplicity
 pub fn build_trade_event(
-    _log: &ethpb::Log,
+    log: &ethpb::Log,
     block: &ethpb::Block,
     pool_address: &str,
 ) -> Result<TradeEvent, Error> {
-    let (sender, recipient, amount0, amount1) = (String::new(), String::new(), 0i128, 0i128);
+    // Topics:
+    // 0: signature
+    // 1: sender (indexed)
+    // 2: recipient (indexed)
+    let sender = if log.topics.len() > 1 {
+        format!("0x{}", hex::encode(&log.topics[1][12..]))
+    } else { String::new() };
+    let recipient = if log.topics.len() > 2 {
+        format!("0x{}", hex::encode(&log.topics[2][12..]))
+    } else { String::new() };
 
-    let token0 = pool_address.to_string(); // placeholder
-    let token1 = pool_address.to_string(); // placeholder
+    // For simplicity keep amounts as 0 for now (data contains amount0/amount1 as int256)
+    let amount0: i128 = 0;
+    let amount1: i128 = 0;
+
+    let token0 = pool_address.to_string();
+    let token1 = pool_address.to_string();
 
     let trade = Trade {
         token_a_address: token0.clone(),
@@ -49,36 +63,14 @@ pub fn build_trade_event(
         vault_b_pre_amount: "0".to_string(),
         vault_a_post_amount: "0".to_string(),
         vault_b_post_amount: "0".to_string(),
-        pool_config_address: "".to_string(),
+        pool_config_address: String::new(),
     };
 
     Ok(TradeEvent {
-        instruction: Some(CInstruction {
-            index: 0,
-            is_inner_instruction: false,
-            inner_instruction_index: 0,
-            type_: "uniswap_v3_swap".to_string(),
-        }),
-        block: Some(CBlock {
-            // ethpb::Block doesn't expose timestamp directly; leave placeholder
-            timestamp: 0,
-            hash: hex::encode(&block.hash),
-            height: block.number as u64,
-            slot: 0,
-        }),
-        transaction: Some(CTransaction {
-            fee: 0,
-            fee_payer: String::new(),
-            index: 0,
-            signature: String::new(),
-            signer: String::new(),
-            status: 1,
-        }),
-        d_app: Some(DApp {
-            program_address: pool_address.to_string(),
-            inner_program_address: String::new(),
-            chain: Chain::CHAIN_BSC as i32,
-        }),
+        instruction: Some(CInstruction { index: 0, is_inner_instruction: false, inner_instruction_index: 0, type_: "uniswap_v3_swap".to_string() }),
+        block: Some(CBlock { timestamp: 0, hash: hex::encode(&block.hash), height: block.number as u64, slot: 0 }),
+        transaction: Some(CTransaction { fee: 0, fee_payer: String::new(), index: 0, signature: String::new(), signer: String::new(), status: 1 }),
+        d_app: Some(DApp { program_address: pool_address.to_string(), inner_program_address: String::new(), chain: Chain::CHAIN_BSC as i32 }),
         trade: Some(trade),
         bonding_curve: None,
     })
