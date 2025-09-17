@@ -1,6 +1,6 @@
 specVersion: v0.1.0
 package:
-  name: io.blockchain.v1.dex.trade
+  name: dex_trades
   version: v0.1.0
 
 binaries:
